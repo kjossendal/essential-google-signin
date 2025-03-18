@@ -1,0 +1,10 @@
+{
+  "extends": "expo/tsconfig.base",
+  "compilerOptions": {
+    "strict": true,
+    "paths": {
+      "essential-google-signin": ["../src/index"],
+      "essential-google-signin/*": ["../src/*"]
+    }
+  }
+}
