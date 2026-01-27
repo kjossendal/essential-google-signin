@@ -1,8 +1,10 @@
-import * as React from 'react';
+import * as React from "react";
 
-import { EssentialGoogleSigninViewProps } from './EssentialGoogleSignin.types';
+import { EssentialGoogleSigninViewProps } from "./EssentialGoogleSignin.types";
 
-export default function EssentialGoogleSigninView(props: EssentialGoogleSigninViewProps) {
+export default function EssentialGoogleSigninView(
+  props: EssentialGoogleSigninViewProps,
+) {
   return (
     <div>
       <iframe

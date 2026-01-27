@@ -1,0 +1,16 @@
+{
+  "name": "essential-google-signin",
+  "expo": {
+    "name": "essential-google-signin",
+    "slug": "essential-google-signin"
+  },
+  "android": {
+    "package": "com.lodev.essentialgooglesignin"
+  },
+  "ios": {
+    "bundleIdentifier": "com.lodev.essentialgooglesignin"
+  },
+  "plugins": [
+    "./src/plugin/withGoogleSigning.js"
+  ]
+}

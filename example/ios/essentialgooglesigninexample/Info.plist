@@ -27,12 +27,14 @@
       <dict>
         <key>CFBundleURLSchemes</key>
         <array>
-          <string>com.jossendal.essentialgooglesignin.example</string>
+          <string>com.googleusercontent.apps.323401839237-l8mk1k20kcre5pv1spt0jmsi9706e1hf</string>
         </array>
       </dict>
     </array>
     <key>CFBundleVersion</key>
     <string>1</string>
+    <key>GIDClientID</key>
+    <string>323401839237-l8mk1k20kcre5pv1spt0jmsi9706e1hf.apps.googleusercontent.com</string>
     <key>LSMinimumSystemVersion</key>
     <string>12.0</string>
     <key>LSRequiresIPhoneOS</key>

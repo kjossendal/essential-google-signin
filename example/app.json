@@ -25,6 +25,16 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "plugins": [
+      [
+        "../src/plugin/withGoogleSigning.js",
+        {
+          "androidClientId": "323401839237-ot59qpfe56lgl1k6thn1capfm1706fv9.apps.googleusercontent.com",
+          "iosClientId": "323401839237-l8mk1k20kcre5pv1spt0jmsi9706e1hf.apps.googleusercontent.com",
+          "webClientId": "323401839237-p490vkqmlcapjajh1f21gfha09p9oi0r.apps.googleusercontent.com"
+        }
+      ]
+    ]
   }
 }

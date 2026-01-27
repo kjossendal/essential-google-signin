@@ -1,48 +1,93 @@
 import ExpoModulesCore
+import GoogleSignIn
 
 public class EssentialGoogleSigninModule: Module {
-  // Each module class must implement the definition function. The definition consists of components
-  // that describes the module's functionality and behavior.
-  // See https://docs.expo.dev/modules/module-api for more details about available components.
-  public func definition() -> ModuleDefinition {
-    // Sets the name of the module that JavaScript code will use to refer to the module. Takes a string as an argument.
-    // Can be inferred from module's class name, but it's recommended to set it explicitly for clarity.
-    // The module will be accessible from `requireNativeModule('EssentialGoogleSignin')` in JavaScript.
-    Name("EssentialGoogleSignin")
-
-    // Sets constant properties on the module. Can take a dictionary or a closure that returns a dictionary.
-    Constants([
-      "PI": Double.pi
-    ])
-
-    // Defines event names that the module can send to JavaScript.
-    Events("onChange")
-
-    // Defines a JavaScript synchronous function that runs the native code on the JavaScript thread.
-    Function("hello") {
-      return "Hello world! 👋"
+    private var webClientId: String?
+    private var iosClientId: String?
+    
+    private func createUserData(from user: GIDGoogleUser, idToken: String) -> [String: Any] {
+        return [
+            "success": true,
+            "data": [
+                "id": user.userID ?? "",
+                "email": user.profile?.email ?? "",
+                "emailVerified": true,
+                "name": user.profile?.name ?? "",
+                "pictureUrl": user.profile?.imageURL(withDimension: 100)?.absoluteString ?? "",
+                "familyName": user.profile?.familyName ?? "",
+                "givenName": user.profile?.givenName ?? "",
+                "idToken": idToken
+            ]
+        ]
     }
 
-    // Defines a JavaScript function that always returns a Promise and whose native code
-    // is by default dispatched on the different thread than the JavaScript runtime runs on.
-    AsyncFunction("setValueAsync") { (value: String) in
-      // Send an event to JavaScript.
-      self.sendEvent("onChange", [
-        "value": value
-      ])
-    }
-
-    // Enables the module to be used as a native view. Definition components that are accepted as part of the
-    // view definition: Prop, Events.
-    View(EssentialGoogleSigninView.self) {
-      // Defines a setter for the `url` prop.
-      Prop("url") { (view: EssentialGoogleSigninView, url: URL) in
-        if view.webView.url != url {
-          view.webView.load(URLRequest(url: url))
+    public func definition() -> ModuleDefinition {
+        Name("EssentialGoogleSignin")
+        
+        Constants([
+            "isAvailable": true
+        ])
+        
+        Events("onChange")
+        
+        AsyncFunction("hasPlayServices") {
+            return true
         }
-      }
-
-      Events("onLoad")
+        
+        AsyncFunction("configure") {
+            guard let iosClientId = Bundle.main.object(forInfoDictionaryKey: "GIDClientID") as? String else {
+                throw NSError(domain: "EssentialGoogleSignin", 
+                            code: -1, 
+                            userInfo: [NSLocalizedDescriptionKey: "GIDClientID not found in Info.plist"])
+            }
+            
+            self.webClientId = iosClientId
+            self.iosClientId = iosClientId
+            
+            GIDSignIn.sharedInstance.configuration = GIDConfiguration(clientID: iosClientId)
+            
+            return [
+                "webClientId": iosClientId,
+                "iosClientId": iosClientId
+            ]
+        }
+        
+        AsyncFunction("signIn") { () async throws -> [String: Any] in
+            guard self.webClientId != nil else {
+                throw NSError(domain: "EssentialGoogleSignin", 
+                            code: -1, 
+                            userInfo: [NSLocalizedDescriptionKey: "Google Sign-In is not configured. Call configure() first."])
+            }
+            
+            guard let controller = self.appContext?.utilities?.currentViewController() else {
+                throw NSError(domain: "EssentialGoogleSignin", 
+                            code: -1, 
+                            userInfo: [NSLocalizedDescriptionKey: "Could not get root view controller"])
+            }
+            
+            return try await withCheckedThrowingContinuation { continuation in
+                GIDSignIn.sharedInstance.signIn(withPresenting: controller) { result, error in
+                    if let error = error {
+                        continuation.resume(throwing: error)
+                        return
+                    }
+                    
+                    guard let user = result?.user,
+                          let idToken = user.idToken?.tokenString else {
+                        continuation.resume(throwing: NSError(domain: "EssentialGoogleSignin", 
+                                                           code: -1, 
+                                                           userInfo: [NSLocalizedDescriptionKey: "Failed to get user token"]))
+                        return
+                    }
+                    
+                    let userData = self.createUserData(from: user, idToken: idToken)
+                    continuation.resume(returning: userData)
+                }
+            }
+        }
+        
+        AsyncFunction("signOut") {
+            GIDSignIn.sharedInstance.signOut()
+        }
     }
-  }
 }

@@ -11,18 +11,20 @@ Pod::Spec.new do |s|
   s.author         = package['author']
   s.homepage       = package['homepage']
   s.platforms      = {
-    :ios => '15.1',
-    :tvos => '15.1'
+    :ios => '13.0'
   }
   s.swift_version  = '5.4'
   s.source         = { git: 'https://github.com/kjossendal/essential-google-signin' }
-  s.static_framework = true
+  s.static_framework = false
 
   s.dependency 'ExpoModulesCore'
+  s.dependency 'GoogleSignIn'
 
   # Swift/Objective-C compatibility
   s.pod_target_xcconfig = {
     'DEFINES_MODULE' => 'YES',
+    'SWIFT_COMPILATION_MODE' => 'wholemodule',
+    'CLANG_ALLOW_NON_MODULAR_INCLUDES_IN_FRAMEWORK_MODULES' => 'YES'
   }
 
   s.source_files = "**/*.{h,m,mm,swift,hpp,cpp}"
