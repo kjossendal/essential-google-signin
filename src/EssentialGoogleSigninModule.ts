@@ -1,16 +1,12 @@
 import { NativeModule, requireNativeModule } from "expo";
 
 import {
-  EssentialGoogleSigninModuleEvents,
   GoogleSignInResult,
   ConfigureResult,
+  GoogleSignOutResult,
 } from "./EssentialGoogleSignin.types";
 
-declare class EssentialGoogleSigninModule extends NativeModule<EssentialGoogleSigninModuleEvents> {
-  PI: number;
-  hello(): string;
-  setValueAsync(value: string): Promise<void>;
-
+declare class EssentialGoogleSigninModule extends NativeModule {
   /**
    * Checks if Google Play Services is available (Android only, always returns true on iOS)
    */
@@ -32,7 +28,7 @@ declare class EssentialGoogleSigninModule extends NativeModule<EssentialGoogleSi
   /**
    * Signs out the current user
    */
-  signOut(): Promise<void>;
+  signOut(): Promise<GoogleSignOutResult>;
 }
 
 // This call loads the native module object from the JSI.

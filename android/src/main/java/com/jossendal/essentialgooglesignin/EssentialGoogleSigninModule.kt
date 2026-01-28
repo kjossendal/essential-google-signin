@@ -22,7 +22,6 @@ import expo.modules.kotlin.exception.CodedException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import java.net.URL
 import java.security.MessageDigest
 import java.util.Collections
 import java.util.UUID
@@ -51,29 +50,6 @@ class EssentialGoogleSigninModule : Module() {
     }
 
     Name("EssentialGoogleSignin")
-
-    Constants(
-      "PI" to Math.PI
-    )
-
-    Events("onChange")
-
-    Function("hello") {
-      "Hello Essential Google Signin 👋"
-    }
-
-    AsyncFunction("setValueAsync") { value: String ->
-      sendEvent("onChange", mapOf(
-        "value" to value
-      ))
-    }
-
-    View(EssentialGoogleSigninView::class) {
-      Prop("url") { view: EssentialGoogleSigninView, url: URL ->
-        view.webView.loadUrl(url.toString())
-      }
-      Events("onLoad")
-    }
 
     AsyncFunction("hasPlayServices") {
       return@AsyncFunction GoogleApiAvailability.getInstance()
@@ -105,8 +81,7 @@ class EssentialGoogleSigninModule : Module() {
         }
 
         return@AsyncFunction mapOf(
-          "webClientId" to webClientId,
-          "androidClientId" to androidClientId
+          "success" to true,
         )
       } catch (e: CodedException) {
         throw e
@@ -176,14 +151,18 @@ class EssentialGoogleSigninModule : Module() {
       }
     }
 
-    AsyncFunction("signOut") {
+    AsyncFunction("signOut") { promise: Promise ->
       if (::credentialManager.isInitialized) {
         CoroutineScope(Dispatchers.IO).launch {
           try {
             val request = ClearCredentialStateRequest()
             credentialManager.clearCredentialState(request)
+            promise.resolve(mapOf("success" to true))
           } catch (e: Exception) {
             Log.e("EssentialGoogleSignin", "Error during sign out", e)
+            promise.reject(
+              CodedException("SIGN_OUT_ERROR", e.message ?: "Failed to sign out", e)
+            )
           }
         }
       }

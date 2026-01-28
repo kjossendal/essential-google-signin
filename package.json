@@ -4,6 +4,10 @@
   "description": "Native Google Sign-In for Expo using Android Credential Manager and iOS GoogleSignIn SDK",
   "main": "build/index.js",
   "types": "build/index.d.ts",
+  "app": [
+    "./app.json",
+    "./src/plugin/withGoogleSigning.js"
+  ],
   "scripts": {
     "build": "expo-module build",
     "clean": "expo-module clean",

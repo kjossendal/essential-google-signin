@@ -11,9 +11,9 @@ Pod::Spec.new do |s|
   s.author         = package['author']
   s.homepage       = package['homepage']
   s.platforms      = {
-    :ios => '13.0'
+    :ios => '14.0'
   }
-  s.swift_version  = '5.4'
+  s.swift_version  = '5.9'
   s.source         = { git: 'https://github.com/kjossendal/essential-google-signin' }
   s.static_framework = false
 

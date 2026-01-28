@@ -102,7 +102,7 @@ const withGoogleSignInIos = (config, { iosClientId, webClientId }) => {
   config = withInfoPlist(config, (config) => {
     const infoPlist = config.modResults;
 
-    // Add GIDClientID to Info.plist
+    // Add GIDClientID to Info.plist (iOS OAuth client ID)
     infoPlist.GIDClientID = iosClientId;
 
     // Extract the client ID part (before .apps.googleusercontent.com)

@@ -2,7 +2,7 @@ import ExpoModulesCore
 import GoogleSignIn
 
 public class EssentialGoogleSigninModule: Module {
-    private var webClientId: String?
+    private var isConfigured: Bool = false
     private var iosClientId: String?
     
     private func createUserData(from user: GIDGoogleUser, idToken: String) -> [String: Any] {
@@ -24,12 +24,6 @@ public class EssentialGoogleSigninModule: Module {
     public func definition() -> ModuleDefinition {
         Name("EssentialGoogleSignin")
         
-        Constants([
-            "isAvailable": true
-        ])
-        
-        Events("onChange")
-        
         AsyncFunction("hasPlayServices") {
             return true
         }
@@ -41,53 +35,59 @@ public class EssentialGoogleSigninModule: Module {
                             userInfo: [NSLocalizedDescriptionKey: "GIDClientID not found in Info.plist"])
             }
             
-            self.webClientId = iosClientId
             self.iosClientId = iosClientId
+            self.isConfigured = true
             
             GIDSignIn.sharedInstance.configuration = GIDConfiguration(clientID: iosClientId)
             
             return [
-                "webClientId": iosClientId,
-                "iosClientId": iosClientId
+                "success": true
             ]
         }
         
         AsyncFunction("signIn") { () async throws -> [String: Any] in
-            guard self.webClientId != nil else {
+            guard self.isConfigured else {
                 throw NSError(domain: "EssentialGoogleSignin", 
                             code: -1, 
                             userInfo: [NSLocalizedDescriptionKey: "Google Sign-In is not configured. Call configure() first."])
             }
             
-            guard let controller = self.appContext?.utilities?.currentViewController() else {
-                throw NSError(domain: "EssentialGoogleSignin", 
-                            code: -1, 
-                            userInfo: [NSLocalizedDescriptionKey: "Could not get root view controller"])
-            }
-            
             return try await withCheckedThrowingContinuation { continuation in
-                GIDSignIn.sharedInstance.signIn(withPresenting: controller) { result, error in
-                    if let error = error {
-                        continuation.resume(throwing: error)
-                        return
-                    }
-                    
-                    guard let user = result?.user,
-                          let idToken = user.idToken?.tokenString else {
+                // Ensure UI operations happen on main thread
+                DispatchQueue.main.async {
+                    guard let controller = self.appContext?.utilities?.currentViewController() else {
                         continuation.resume(throwing: NSError(domain: "EssentialGoogleSignin", 
-                                                           code: -1, 
-                                                           userInfo: [NSLocalizedDescriptionKey: "Failed to get user token"]))
+                                    code: -1, 
+                                    userInfo: [NSLocalizedDescriptionKey: "Could not get root view controller"]))
                         return
                     }
                     
-                    let userData = self.createUserData(from: user, idToken: idToken)
-                    continuation.resume(returning: userData)
+                    GIDSignIn.sharedInstance.signIn(withPresenting: controller) { result, error in
+                        if let error = error {
+                            continuation.resume(throwing: error)
+                            return
+                        }
+                        
+                        guard let user = result?.user,
+                              let idToken = user.idToken?.tokenString else {
+                            continuation.resume(throwing: NSError(domain: "EssentialGoogleSignin", 
+                                                               code: -1, 
+                                                               userInfo: [NSLocalizedDescriptionKey: "Failed to get user token"]))
+                            return
+                        }
+                        
+                        let userData = self.createUserData(from: user, idToken: idToken)
+                        continuation.resume(returning: userData)
+                    }
                 }
             }
         }
         
         AsyncFunction("signOut") {
             GIDSignIn.sharedInstance.signOut()
+            return [
+                "success": true
+            ]
         }
     }
 }

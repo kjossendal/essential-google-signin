@@ -17,11 +17,11 @@ This package provides a simple, modern implementation of Google authentication f
 
 ## Platform Support
 
-| Platform | Supported | Implementation |
-|----------|-----------|----------------|
-| iOS      | ✅ Yes    | GoogleSignIn SDK |
+| Platform | Supported | Implementation         |
+| -------- | --------- | ---------------------- |
+| iOS      | ✅ Yes    | GoogleSignIn SDK       |
 | Android  | ✅ Yes    | Credential Manager API |
-| Web      | ❌ No     | Native only |
+| Web      | ❌ No     | Native only            |
 
 ## Installation
 
@@ -80,6 +80,7 @@ You'll need to create **three** different OAuth 2.0 client IDs (all three are re
 3. Save the Client ID (format: `xxx-xxx.apps.googleusercontent.com`)
 
 **Why it's needed:**
+
 - Android Credential Manager requires a web client ID to generate OAuth tokens
 - Backend servers use this to verify ID tokens
 - It's a requirement of Google's OAuth flow, not for web platform support
@@ -146,7 +147,7 @@ export default function App() {
   useEffect(() => {
     // Skip on web (native only)
     if (Platform.OS === 'web') return;
-    
+
     // Configure on app start
     EssentialGoogleSignin.configure()
       .then(config => console.log('Configured:', config))
@@ -189,27 +190,6 @@ export default function App() {
 }
 ```
 
-### With Event Listener
-
-You can also listen to events emitted by the module:
-
-```typescript
-import EssentialGoogleSignin from "essential-google-signin";
-import { useEvent } from "expo";
-
-function MyComponent() {
-  const onChangePayload = useEvent(EssentialGoogleSignin, "onChange");
-
-  useEffect(() => {
-    if (onChangePayload) {
-      console.log("Event received:", onChangePayload);
-    }
-  }, [onChangePayload]);
-
-  // ... rest of component
-}
-```
-
 ## API Reference
 
 ### Methods
@@ -222,7 +202,7 @@ Configures Google Sign-In by reading client IDs from native configuration.
 
 ```typescript
 {
-  webClientId: string;
+  webClientId?: string;      // Web client ID (Android always, iOS optional)
   androidClientId?: string;  // Android only
   iosClientId?: string;      // iOS only
 }
@@ -323,7 +303,7 @@ type ConfigureResult = {
 - Uses **Credential Manager API** (modern replacement for deprecated GoogleSignInClient)
 - Verifies ID tokens server-side using Google's verification library
 - Requires Google Play Services to be installed
-- Supports Android 5.0 (API 21) and above
+- Supports Android 7.0 (API 24) and above
 - Uses SHA-256 nonce for enhanced security
 
 ### iOS
@@ -331,7 +311,7 @@ type ConfigureResult = {
 - Uses **GoogleSignIn SDK** (official library from Google)
 - Handles OAuth callback URLs automatically via AppDelegate
 - Restores previous sign-in state on app launch
-- Supports iOS 13.0 and above
+- Supports iOS 14.0 and above
 
 ## Troubleshooting
 
@@ -392,14 +372,14 @@ This module only works on **native platforms (iOS and Android)**. Web is not sup
 Use platform detection to skip on web:
 
 ```typescript
-import { Platform } from 'react-native';
+import { Platform } from "react-native";
 
 useEffect(() => {
-  if (Platform.OS === 'web') {
-    console.log('Google Sign-In not available on web');
+  if (Platform.OS === "web") {
+    console.log("Google Sign-In not available on web");
     return;
   }
-  
+
   // Your Google Sign-In code here
 }, []);
 ```
