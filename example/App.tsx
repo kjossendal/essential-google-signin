@@ -1,57 +1,100 @@
-import EssentialGoogleSignin, {
-  EssentialGoogleSigninView,
-} from "essential-google-signin";
-import { useEvent } from "expo";
-import { Button, SafeAreaView, ScrollView, Text, View } from "react-native";
+import EssentialGoogleSignin, { GoogleUserData } from "essential-google-signin";
+import { useEffect, useState } from "react";
+import {
+  Alert,
+  Button,
+  Platform,
+  SafeAreaView,
+  ScrollView,
+  Text,
+  View,
+} from "react-native";
 
 export default function App() {
-  const onChangePayload = useEvent(EssentialGoogleSignin, "onChange");
+  const [isConfigured, setIsConfigured] = useState(false);
+  const [user, setUser] = useState<GoogleUserData | null>(null);
 
-  const configureGoogleSignIn = async () => {
-    const result = await EssentialGoogleSignin.configure();
-    console.log(result);
-  };
+  // Automatically configure Google Sign-In when the app starts
+  useEffect(() => {
+    // Skip configuration on web (native module not available)
+    if (Platform.OS === "web") {
+      console.log("Google Sign-In is not available on web");
+      return;
+    }
+
+    const configure = async () => {
+      try {
+        const result = await EssentialGoogleSignin.configure();
+        console.log("Google Sign-In configured:", result);
+        setIsConfigured(true);
+      } catch (error) {
+        console.error("Failed to configure Google Sign-In:", error);
+      }
+    };
+    configure();
+  }, []);
 
   const signIn = async () => {
-    const result = await EssentialGoogleSignin.signIn();
-    console.log(result);
+    try {
+      const result = await EssentialGoogleSignin.signIn();
+      console.log("Sign in successful:", result);
+      setUser(result.data);
+    } catch (error) {
+      console.error("Sign in failed:", error);
+    }
+  };
+
+  const signOut = async () => {
+    try {
+      const result = await EssentialGoogleSignin.signOut();
+      console.log("Sign out successful:", result);
+      setUser(null);
+    } catch (error) {
+      console.error("Sign out failed:", error);
+    }
   };
 
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView style={styles.container}>
-        <Text style={styles.header}>Module API Example</Text>
-        <Group name="Events">
-          <Text>{JSON.stringify(onChangePayload)}</Text>
+        <Text style={styles.header}>Google Sign-In Example</Text>
+        <Group name="Configuration Status">
+          <Text style={{ marginBottom: 10 }}>
+            {isConfigured ? "✅ Configured" : "⏳ Configuring..."}
+          </Text>
         </Group>
-        <Group name="Constants">
-          <Text>{EssentialGoogleSignin.PI}</Text>
+        <Group name="Google Sign-In">
+          {Platform.OS === "web" ? (
+            <Text style={{ color: "#666" }}>
+              ⚠️ Google Sign-In is only available on iOS and Android.{"\n"}
+              Please test on a mobile device or simulator.
+            </Text>
+          ) : user ? (
+            <>
+              <Text>Welcome, {user.name}!</Text>
+              <Button title="Sign Out" onPress={signOut} />
+            </>
+          ) : (
+            <>
+              <Button
+                title="Sign In with Google"
+                onPress={signIn}
+                disabled={!isConfigured}
+              />
+              <Text style={{ marginTop: 10, fontSize: 12, color: "#666" }}>
+                {!isConfigured && "Waiting for configuration..."}
+              </Text>
+            </>
+          )}
         </Group>
-        {/* <Group name="Functions">
-          <Text>{EssentialGoogleSignin.hello()}</Text>
-        </Group> */}
-        <Group name="Async functions">
+        <Group name="Debug Functions">
           <Button
-            title="Has play services"
+            title="Check Play Services"
             onPress={async () => {
               const result = await EssentialGoogleSignin.hasPlayServices();
-              console.log(result);
+              Alert.alert("Play Services available:", result.toString());
+              console.log("Play Services available:", result);
             }}
-          />
-          <Button
-            title="Set value"
-            onPress={async () => {
-              await EssentialGoogleSignin.setValueAsync("Hello from JS!");
-            }}
-          />
-          <Button title="Configure" onPress={configureGoogleSignIn} />
-          <Button title="Sign in" onPress={signIn} />
-        </Group>
-        <Group name="Views">
-          <EssentialGoogleSigninView
-            url="https://www.example.com"
-            onLoad={({ nativeEvent: { url } }) => console.log(`Loaded: ${url}`)}
-            style={styles.view}
           />
         </Group>
       </ScrollView>
