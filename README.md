@@ -106,17 +106,6 @@ You'll need to create **three** different OAuth 2.0 client IDs (all three are re
 }
 ```
 
-> **Note:** If you're developing this package locally (not installing from npm), use the file path instead:
->
-> ```json
-> "plugins": [
->   [
->     "./node_modules/essential-google-signin/src/plugin/withGoogleSigning.js",
->     { /* config */ }
->   ]
-> ]
-> ```
-
 ### Run prebuild
 
 After adding the plugin, run prebuild to apply the configuration:

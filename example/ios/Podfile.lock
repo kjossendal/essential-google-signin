@@ -11,7 +11,7 @@ PODS:
     - PromisesObjC (~> 2.4)
   - boost (1.84.0)
   - DoubleConversion (1.1.6)
-  - EssentialGoogleSignin (0.1.0):
+  - EssentialGoogleSignin (0.2.0):
     - ExpoModulesCore
     - GoogleSignIn
   - EXConstants (17.0.8):
@@ -1815,7 +1815,7 @@ SPEC CHECKSUMS:
   AppCheckCore: cc8fd0a3a230ddd401f326489c99990b013f0c4f
   boost: 1dca942403ed9342f98334bf4c3621f011aa7946
   DoubleConversion: f16ae600a246532c4020132d54af21d0ddb2a385
-  EssentialGoogleSignin: 080c2ea6faf735f989a2dd78f89a8b07d9a4c769
+  EssentialGoogleSignin: 22ffb348138636460cb97eba5998d122c9765941
   EXConstants: a1f35b9aabbb3c6791f8e67722579b1ffcdd3f18
   Expo: d01030025d6965c98bd968ea9b71ae5bb9727cb8
   ExpoAsset: a4cbc27a7cd24a6e87eb719603790b2cfa8dd326

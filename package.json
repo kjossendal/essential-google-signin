@@ -1,13 +1,9 @@
 {
   "name": "essential-google-signin",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Native Google Sign-In for Expo using Android Credential Manager and iOS GoogleSignIn SDK",
   "main": "build/index.js",
   "types": "build/index.d.ts",
-  "app": [
-    "./app.json",
-    "./src/plugin/withGoogleSigning.js"
-  ],
   "scripts": {
     "build": "expo-module build",
     "clean": "expo-module clean",

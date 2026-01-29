@@ -4,13 +4,35 @@ const {
   withInfoPlist,
 } = require("@expo/config-plugins");
 
-const withGoogleSignIn = (
-  config,
-  { androidClientId, webClientId, iosClientId },
-) => {
+const withGoogleSignIn = (config, options = {}) => {
+  const { androidClientId, webClientId, iosClientId } = options;
+
+  // Validate required options
   if (!androidClientId) {
     throw new Error(
-      "androidClientId is required for Google Sign-In configuration",
+      'essential-google-signin: "androidClientId" is required in plugin configuration.\n' +
+      'Add it to your app.json:\n' +
+      '{\n' +
+      '  "plugins": [\n' +
+      '    ["essential-google-signin", {\n' +
+      '      "androidClientId": "YOUR_ANDROID_CLIENT_ID.apps.googleusercontent.com",\n' +
+      '      "iosClientId": "YOUR_IOS_CLIENT_ID.apps.googleusercontent.com",\n' +
+      '      "webClientId": "YOUR_WEB_CLIENT_ID.apps.googleusercontent.com"\n' +
+      '    }]\n' +
+      '  ]\n' +
+      '}',
+    );
+  }
+
+  if (!iosClientId) {
+    throw new Error(
+      'essential-google-signin: "iosClientId" is required in plugin configuration.',
+    );
+  }
+
+  if (!webClientId) {
+    throw new Error(
+      'essential-google-signin: "webClientId" is required in plugin configuration.',
     );
   }
 
