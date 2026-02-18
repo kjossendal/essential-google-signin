@@ -1,4 +1,9 @@
-import EssentialGoogleSignin, { GoogleUserData } from "essential-google-signin";
+import EssentialGoogleSignin, {
+  GoogleUserData,
+  GoogleSigninButton,
+  Size,
+  Color,
+} from "essential-google-signin";
 import { useEffect, useState } from "react";
 import {
   Alert,
@@ -10,8 +15,11 @@ import {
   View,
 } from "react-native";
 
+EssentialGoogleSignin.configure({
+  androidAutoSelectEnabled: true,
+});
+
 export default function App() {
-  const [isConfigured, setIsConfigured] = useState(false);
   const [user, setUser] = useState<GoogleUserData | null>(null);
 
   // Automatically configure Google Sign-In when the app starts
@@ -19,19 +27,7 @@ export default function App() {
     // Skip configuration on web (native module not available)
     if (Platform.OS === "web") {
       console.log("Google Sign-In is not available on web");
-      return;
     }
-
-    const configure = async () => {
-      try {
-        const result = await EssentialGoogleSignin.configure();
-        console.log("Google Sign-In configured:", result);
-        setIsConfigured(true);
-      } catch (error) {
-        console.error("Failed to configure Google Sign-In:", error);
-      }
-    };
-    configure();
   }, []);
 
   const signIn = async () => {
@@ -58,11 +54,6 @@ export default function App() {
     <SafeAreaView style={styles.container}>
       <ScrollView style={styles.container}>
         <Text style={styles.header}>Google Sign-In Example</Text>
-        <Group name="Configuration Status">
-          <Text style={{ marginBottom: 10 }}>
-            {isConfigured ? "✅ Configured" : "⏳ Configuring..."}
-          </Text>
-        </Group>
         <Group name="Google Sign-In">
           {Platform.OS === "web" ? (
             <Text style={{ color: "#666" }}>
@@ -75,16 +66,14 @@ export default function App() {
               <Button title="Sign Out" onPress={signOut} />
             </>
           ) : (
-            <>
-              <Button
-                title="Sign In with Google"
+            <View style={{ gap: 10, alignItems: "center" }}>
+              <Button title="Custom Sign In with Google" onPress={signIn} />
+              <GoogleSigninButton
+                size={Size.Wide}
+                color={Color.Light}
                 onPress={signIn}
-                disabled={!isConfigured}
               />
-              <Text style={{ marginTop: 10, fontSize: 12, color: "#666" }}>
-                {!isConfigured && "Waiting for configuration..."}
-              </Text>
-            </>
+            </View>
           )}
         </Group>
         <Group name="Debug Functions">

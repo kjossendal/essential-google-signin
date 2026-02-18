@@ -11,7 +11,9 @@ class EssentialGoogleSigninModule extends NativeModule {
     throw NOT_SUPPORTED_ERROR;
   }
 
-  async configure(): Promise<never> {
+  async configure(_options?: {
+    androidAutoSelectEnabled?: boolean;
+  }): Promise<never> {
     throw NOT_SUPPORTED_ERROR;
   }
 

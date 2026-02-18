@@ -27,8 +27,9 @@ public class EssentialGoogleSigninModule: Module {
         AsyncFunction("hasPlayServices") {
             return true
         }
-        
-        AsyncFunction("configure") {
+
+        // No options are supported for iOS at this time. For parity with Android, we accept an options parameter but it is ignored.
+        AsyncFunction("configure") { (_ options: [String: Any]?) in
             guard let iosClientId = Bundle.main.object(forInfoDictionaryKey: "GIDClientID") as? String else {
                 throw NSError(domain: "EssentialGoogleSignin", 
                             code: -1, 
@@ -88,6 +89,19 @@ public class EssentialGoogleSigninModule: Module {
             return [
                 "success": true
             ]
+        }
+
+        View(EssentialGoogleSigninButtonView.self) {
+            Events("onButtonPress")
+            Prop("size") { (view: EssentialGoogleSigninButtonView, size: Int) in
+                view.signInButton.style = GIDSignInButtonStyle(rawValue: size) ?? .standard
+            }
+            Prop("color") { (view: EssentialGoogleSigninButtonView, color: String) in
+                view.signInButton.colorScheme = color == "light" ? .light : .dark
+            }
+            Prop("disabled") { (view: EssentialGoogleSigninButtonView, disabled: Bool) in
+                view.signInButton.isEnabled = !disabled
+            }
         }
     }
 }

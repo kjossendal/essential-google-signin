@@ -2,3 +2,5 @@
 // and on native platforms to EssentialGoogleSigninModule.ts
 export { default } from "./EssentialGoogleSigninModule";
 export * from "./EssentialGoogleSignin.types";
+
+export { GoogleSigninButton, Size, Color } from "./EssentialGoogleSigninButton";
