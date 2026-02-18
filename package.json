@@ -25,7 +25,9 @@
     "essential-google-signin",
     "EssentialGoogleSignin"
   ],
-  "repository": "https://github.com/kjossendal/essential-google-signin",
+  "repository": {
+    "url": "https://github.com/kjossendal/essential-google-signin"
+  },
   "bugs": {
     "url": "https://github.com/kjossendal/essential-google-signin/issues"
   },
