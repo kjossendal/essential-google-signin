@@ -179,13 +179,75 @@ export default function App() {
 }
 ```
 
+### Android account selection behavior
+
+You can control whether Android should try auto-selecting an account when possible:
+
+```typescript
+await EssentialGoogleSignin.configure({
+  androidAutoSelectEnabled: true, // default
+});
+```
+
+- `true` (default): allows automatic account selection when Google Credential Manager determines it is safe/eligible.
+- `false`: forces explicit account selection UI.
+
+> Note: This option is Android-only. iOS ignores it.
+
+### Native Google Sign-In Button
+
+This package also exports a native `GoogleSigninButton` component (similar to `@react-native-google-signin/google-signin`).
+
+```typescript
+import EssentialGoogleSignin, {
+  GoogleSigninButton,
+} from "essential-google-signin";
+import { useEffect } from "react";
+import { Platform, View } from "react-native";
+
+export default function App() {
+  useEffect(() => {
+    if (Platform.OS === "web") return;
+    EssentialGoogleSignin.configure();
+  }, []);
+
+  return (
+    <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+      <GoogleSigninButton
+        size={GoogleSigninButton.Size.Wide}
+        color={GoogleSigninButton.Color.Dark}
+        onPress={() => EssentialGoogleSignin.signIn()}
+        disabled={Platform.OS === "web"}
+      />
+    </View>
+  );
+}
+```
+
+#### Button props
+
+- `size`: `GoogleSigninButton.Size.Standard` (230x48), `Wide` (312x48), `Icon` (48x48)
+- `color`: `GoogleSigninButton.Color.Light` or `GoogleSigninButton.Color.Dark`
+- `disabled`: disables interaction when `true`
+- `onPress`: callback invoked when the native button is tapped
+
+> Note: This button is native-only (iOS/Android). It renders nothing useful on web.
+
 ## API Reference
 
 ### Methods
 
-#### `configure(): Promise<ConfigureResult>`
+#### `configure(options?: ConfigureOptions): Promise<ConfigureResult>`
 
 Configures Google Sign-In by reading client IDs from native configuration.
+
+**Options:**
+
+```typescript
+{
+  androidAutoSelectEnabled?: boolean; // Android only, default true
+}
+```
 
 **Returns:**
 
@@ -282,6 +344,10 @@ type ConfigureResult = {
   webClientId: string;
   androidClientId?: string;
   iosClientId?: string;
+};
+
+type ConfigureOptions = {
+  androidAutoSelectEnabled?: boolean;
 };
 ```
 

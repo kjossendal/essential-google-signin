@@ -173,27 +173,6 @@ const withGoogleSignInIos = (config, { iosClientId, webClientId }) => {
       }
     }
 
-    // Add restorePreviousSignIn code if not already present
-    if (!appDelegate.includes("restorePreviousSignInWithCompletion")) {
-      const restoreSignInCode = `\n  [GIDSignIn.sharedInstance restorePreviousSignInWithCompletion:^(GIDGoogleUser * _Nullable user,
-                                                                  NSError * _Nullable error) {
-    if (error) {
-      // Show the app's signed-out state.
-    } else {
-      // Show the app's signed-in state.
-    }
-  }];`;
-
-      // Find self.initialProps and insert after it
-      const initialPropsPattern = /(self\.initialProps = @\{\};)/;
-      if (appDelegate.match(initialPropsPattern)) {
-        appDelegate = appDelegate.replace(
-          initialPropsPattern,
-          `$1${restoreSignInCode}`,
-        );
-      }
-    }
-
     // Add URL handling code to openURL method if not already present
     if (!appDelegate.includes("[GIDSignIn.sharedInstance handleURL:url]")) {
       const urlHandlingCode = `  BOOL handled;

@@ -8,6 +8,7 @@ import androidx.credentials.GetCredentialResponse
 import androidx.credentials.ClearCredentialStateRequest
 import androidx.credentials.exceptions.GetCredentialException
 import com.google.android.gms.common.GoogleApiAvailability
+import com.google.android.gms.common.SignInButton
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.google.android.libraries.identity.googleid.GoogleIdTokenParsingException
@@ -41,6 +42,7 @@ class EssentialGoogleSigninModule : Module() {
   private lateinit var credentialManager: CredentialManager
   private var webClientId: String? = null
   private var androidClientId: String? = null
+  private var autoSelectEnabled: Boolean = true
   private var tokenVerifier: GoogleIdTokenVerifier? = null
 
   override fun definition() = ModuleDefinition {
@@ -56,8 +58,15 @@ class EssentialGoogleSigninModule : Module() {
         .isGooglePlayServicesAvailable(context) == com.google.android.gms.common.ConnectionResult.SUCCESS
     }
 
-    AsyncFunction("configure") {
+    AsyncFunction("configure") { options: Map<String, Any>? ->
       try {
+        // Android-only sign-in behavior toggle:
+        // true (default) = allow automatic account selection when possible.
+        // false = require explicit account selection.
+        autoSelectEnabled =
+          (options?.get("androidAutoSelectEnabled") as? Boolean)
+            ?: true
+
         val appInfo = context.packageManager.getApplicationInfo(
           context.packageName, 
           android.content.pm.PackageManager.GET_META_DATA
@@ -115,7 +124,7 @@ class EssentialGoogleSigninModule : Module() {
         val googleIdOption = GetGoogleIdOption.Builder()
           .setFilterByAuthorizedAccounts(false)
           .setServerClientId(webClientId!!)
-          .setAutoSelectEnabled(true)
+          .setAutoSelectEnabled(autoSelectEnabled)
           .setNonce(nonce)
           .build()
 
@@ -165,6 +174,20 @@ class EssentialGoogleSigninModule : Module() {
             )
           }
         }
+      }
+    }
+
+    View(EssentialGoogleSigninButtonView::class) {
+      Events("onButtonPress")
+      Prop("size") { view: EssentialGoogleSigninButtonView, size: Int ->
+        view.signInButton.setSize(size)
+      }
+      Prop("color") { view: EssentialGoogleSigninButtonView, color: String? ->
+        val scheme = if (color == "light") SignInButton.COLOR_LIGHT else SignInButton.COLOR_DARK
+        view.signInButton.setColorScheme(scheme)
+      }
+      Prop("disabled") { view: EssentialGoogleSigninButtonView, disabled: Boolean ->
+        view.signInButton.isEnabled = !disabled
       }
     }
   }

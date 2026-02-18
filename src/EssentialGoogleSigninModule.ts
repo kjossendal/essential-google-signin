@@ -3,6 +3,7 @@ import { NativeModule, requireNativeModule } from "expo";
 import {
   GoogleSignInResult,
   ConfigureResult,
+  ConfigureOptions,
   GoogleSignOutResult,
 } from "./EssentialGoogleSignin.types";
 
@@ -17,7 +18,7 @@ declare class EssentialGoogleSigninModule extends NativeModule {
    * On Android: reads from AndroidManifest.xml
    * On iOS: reads from Info.plist
    */
-  configure(): Promise<ConfigureResult>;
+  configure(options?: ConfigureOptions): Promise<ConfigureResult>;
 
   /**
    * Initiates the Google Sign-In flow
