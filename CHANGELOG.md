@@ -5,17 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.4.0] - 2026-06-21
+## [0.5.0] - 2026-06-21
 
 ### Fixed
+
 - iOS builds with GoogleSignIn 8.0+ now work under Expo's default static library configuration (`no use_frameworks!`). GoogleSignIn 8.0 introduced `AppCheckCore` (Swift) as a required dependency, which pulls in `GoogleUtilities` and `RecaptchaInterop` — Objective-C pods that ship without module maps. The config plugin now automatically injects `:modular_headers => true` for both pods into the Podfile via `withDangerousMod`.
 
 ### Changed
+
 - Config plugin now patches the Podfile automatically on `expo prebuild`. Bare workflow users can add the two pod declarations manually (see README).
 
 ## [0.2.0] - 2025-01-27
 
 ### Fixed
+
 - Added `app.plugin.js` in package root for proper Expo plugin discovery
 - Fixed plugin parameter destructuring error with better validation
 - Added helpful error messages when plugin configuration is missing
@@ -24,6 +27,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Removed unnecessary `webClientId` from iOS (only used on Android)
 
 ### Changed
+
 - Improved plugin error messages with configuration examples
 - Bumped iOS minimum version to 14.0 (from 13.0)
 - Bumped Swift version to 5.9 (from 5.4)
@@ -31,6 +35,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Bumped Android min SDK to 24 (from 21)
 
 ### Removed
+
 - Removed unused view components (EssentialGoogleSigninView)
 - Removed example/boilerplate code (PI constant, hello function, etc.)
 - Removed empty AndroidManifest.xml
@@ -39,6 +44,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.1.0] - 2025-01-27
 
 ### Added
+
 - Initial release of essential-google-signin
 - Native Google Sign-In for Android using Credential Manager API
 - Native Google Sign-In for iOS using GoogleSignIn SDK
@@ -51,6 +57,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Support for iOS 14.0+
 
 ### Features
+
 - **Android**: Modern Credential Manager API integration
 - **iOS**: Official GoogleSignIn SDK integration
 - **Config Plugin**: Automatic setup of AndroidManifest.xml and Info.plist

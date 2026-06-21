@@ -119,7 +119,7 @@ This will:
 - Add the client IDs to `AndroidManifest.xml` (Android)
 - Add the client ID and URL scheme to `Info.plist` (iOS)
 - Configure iOS AppDelegate for OAuth callbacks
-- Set up Google Sign-In session restoration
+- Patch `Podfile` with `:modular_headers => true` for GoogleSignIn 8.0+ compatibility
 
 ## Usage
 
