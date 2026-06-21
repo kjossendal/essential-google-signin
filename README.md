@@ -411,6 +411,42 @@ This means the URL scheme isn't properly configured in Info.plist.
 - Ensure your client IDs are properly set in `app.json`
 - Verify that `npx expo prebuild` was run after adding the plugin
 
+### iOS: Build error about missing module maps (AppCheckCore / GoogleUtilities / RecaptchaInterop)
+
+GoogleSignIn 8.0+ introduced `AppCheckCore` (Swift) as a required dependency. `AppCheckCore` depends on `GoogleUtilities` and `RecaptchaInterop`, which are Objective-C pods that ship without module maps. Under Expo's default static library configuration (`no use_frameworks!`), CocoaPods requires module maps for Swift pods to import them, causing build failures like:
+
+```
+error: could not build Objective-C module 'GoogleUtilities'
+error: could not build Objective-C module 'RecaptchaInterop'
+```
+
+**Solution (automatic):**
+
+The config plugin handles this automatically. After running `npx expo prebuild`, your Podfile will contain:
+
+```ruby
+# @generated begin essential-google-signin-modular-headers
+pod 'GoogleUtilities', :modular_headers => true
+pod 'RecaptchaInterop', :modular_headers => true
+# @generated end essential-google-signin-modular-headers
+```
+
+If you still see the error, run:
+
+```bash
+npx expo prebuild --clean
+cd ios && pod install
+```
+
+**Solution (bare workflow):**
+
+If you manage your Podfile manually, add these two lines inside your `target` block, after `use_native_modules!`:
+
+```ruby
+pod 'GoogleUtilities', :modular_headers => true
+pod 'RecaptchaInterop', :modular_headers => true
+```
+
 ### iOS: App crashes on launch after adding the module
 
 **Solution:**

@@ -3,6 +3,21 @@ const makeBaseConfig = () => ({
   modResults: {},
 });
 
+const FAKE_PODFILE = `platform :ios, '14.0'\n\n  use_native_modules!\n\nend\n`;
+
+jest.mock("fs", () => ({
+  readFileSync: jest.fn(() => FAKE_PODFILE),
+  writeFileSync: jest.fn(),
+}));
+
+jest.mock("@expo/config-plugins/build/utils/generateCode", () => ({
+  mergeContents: jest.fn(({ src, newSrc }) => ({
+    contents: src + newSrc,
+    didMerge: true,
+    didClear: false,
+  })),
+}));
+
 jest.mock("@expo/config-plugins", () => ({
   withAndroidManifest: (config, action) => {
     const androidConfig = {
@@ -32,10 +47,18 @@ jest.mock("@expo/config-plugins", () => ({
       modResults: {
         ...(config.modResults || {}),
         contents:
-          '#import <React/RCTLinkingManager.h>\n\nself.initialProps = @{};\n\n- (BOOL)application:(UIApplication *)application openURL:(NSURL *)url options:(NSDictionary<UIApplicationOpenURLOptionsKey,id> *)options {\n  return [RCTLinkingManager application:application openURL:url options:options];\n}\n',
+          "#import <React/RCTLinkingManager.h>\n\nself.initialProps = @{};\n\n- (BOOL)application:(UIApplication *)application openURL:(NSURL *)url options:(NSDictionary<UIApplicationOpenURLOptionsKey,id> *)options {\n  return [RCTLinkingManager application:application openURL:url options:options];\n}\n",
       },
     };
     return action(appDelegateConfig);
+  },
+  withDangerousMod: (config, [platform, action]) => {
+    const modConfig = {
+      ...config,
+      modRequest: { platformProjectRoot: "/fake/ios" },
+    };
+    action(modConfig);
+    return modConfig;
   },
 }));
 
@@ -73,6 +96,34 @@ describe("withGoogleSigning plugin", () => {
         iosClientId: validOptions.iosClientId,
       }),
     ).toThrow(/webClientId/);
+  });
+
+  it("patches Podfile with modular headers for GoogleUtilities and RecaptchaInterop", () => {
+    const fs = require("fs");
+    const {
+      mergeContents,
+    } = require("@expo/config-plugins/build/utils/generateCode");
+
+    withGoogleSignIn(makeBaseConfig(), validOptions);
+
+    expect(mergeContents).toHaveBeenCalledWith(
+      expect.objectContaining({
+        tag: "essential-google-signin-modular-headers",
+        anchor: /use_native_modules!/,
+        offset: 1,
+        comment: "#",
+        newSrc: expect.stringContaining("GoogleUtilities"),
+      }),
+    );
+    expect(mergeContents).toHaveBeenCalledWith(
+      expect.objectContaining({
+        newSrc: expect.stringContaining("RecaptchaInterop"),
+      }),
+    );
+    expect(fs.writeFileSync).toHaveBeenCalledWith(
+      "/fake/ios/Podfile",
+      expect.any(String),
+    );
   });
 
   it("adds expected Android and iOS configuration when options are valid", () => {
@@ -116,4 +167,3 @@ describe("withGoogleSigning plugin", () => {
     );
   });
 });
-

@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.0] - 2026-06-21
+
+### Fixed
+- iOS builds with GoogleSignIn 8.0+ now work under Expo's default static library configuration (`no use_frameworks!`). GoogleSignIn 8.0 introduced `AppCheckCore` (Swift) as a required dependency, which pulls in `GoogleUtilities` and `RecaptchaInterop` — Objective-C pods that ship without module maps. The config plugin now automatically injects `:modular_headers => true` for both pods into the Podfile via `withDangerousMod`.
+
+### Changed
+- Config plugin now patches the Podfile automatically on `expo prebuild`. Bare workflow users can add the two pod declarations manually (see README).
+
 ## [0.2.0] - 2025-01-27
 
 ### Fixed

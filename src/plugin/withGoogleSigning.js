@@ -1,8 +1,39 @@
 const {
   withAndroidManifest,
   withAppDelegate,
+  withDangerousMod,
   withInfoPlist,
 } = require("@expo/config-plugins");
+const {
+  mergeContents,
+} = require("@expo/config-plugins/build/utils/generateCode");
+const fs = require("fs");
+const path = require("path");
+
+const withModularHeaders = (config) => {
+  return withDangerousMod(config, [
+    "ios",
+    (config) => {
+      const podfilePath = path.join(
+        config.modRequest.platformProjectRoot,
+        "Podfile",
+      );
+      const podfile = fs.readFileSync(podfilePath, "utf8");
+      const result = mergeContents({
+        tag: "essential-google-signin-modular-headers",
+        src: podfile,
+        newSrc: `  pod 'GoogleUtilities', :modular_headers => true\n  pod 'RecaptchaInterop', :modular_headers => true`,
+        anchor: /use_native_modules!/,
+        offset: 1,
+        comment: "#",
+      });
+      if (result.didMerge || result.didClear) {
+        fs.writeFileSync(podfilePath, result.contents);
+      }
+      return config;
+    },
+  ]);
+};
 
 const withGoogleSignIn = (config, options = {}) => {
   const { androidClientId, webClientId, iosClientId } = options;
@@ -11,16 +42,16 @@ const withGoogleSignIn = (config, options = {}) => {
   if (!androidClientId) {
     throw new Error(
       'essential-google-signin: "androidClientId" is required in plugin configuration.\n' +
-      'Add it to your app.json:\n' +
-      '{\n' +
-      '  "plugins": [\n' +
-      '    ["essential-google-signin", {\n' +
-      '      "androidClientId": "YOUR_ANDROID_CLIENT_ID.apps.googleusercontent.com",\n' +
-      '      "iosClientId": "YOUR_IOS_CLIENT_ID.apps.googleusercontent.com",\n' +
-      '      "webClientId": "YOUR_WEB_CLIENT_ID.apps.googleusercontent.com"\n' +
-      '    }]\n' +
-      '  ]\n' +
-      '}',
+        "Add it to your app.json:\n" +
+        "{\n" +
+        '  "plugins": [\n' +
+        '    ["essential-google-signin", {\n' +
+        '      "androidClientId": "YOUR_ANDROID_CLIENT_ID.apps.googleusercontent.com",\n' +
+        '      "iosClientId": "YOUR_IOS_CLIENT_ID.apps.googleusercontent.com",\n' +
+        '      "webClientId": "YOUR_WEB_CLIENT_ID.apps.googleusercontent.com"\n' +
+        "    }]\n" +
+        "  ]\n" +
+        "}",
     );
   }
 
@@ -105,6 +136,11 @@ const withGoogleSignIn = (config, options = {}) => {
   if (iosClientId) {
     config = withGoogleSignInIos(config, { iosClientId, webClientId });
   }
+
+  // Patch Podfile so GoogleSignIn 8.0+ works with Expo's default static library config.
+  // AppCheckCore (introduced in 8.0) depends on GoogleUtilities and RecaptchaInterop, which
+  // are ObjC pods without module maps. Without :modular_headers, Swift can't import them.
+  config = withModularHeaders(config);
 
   return config;
 };
