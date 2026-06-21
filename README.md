@@ -425,10 +425,10 @@ error: could not build Objective-C module 'RecaptchaInterop'
 The config plugin handles this automatically. After running `npx expo prebuild`, your Podfile will contain:
 
 ```ruby
-# @generated begin essential-google-signin-modular-headers
+# managed by expo prebuild — do not edit
 pod 'GoogleUtilities', :modular_headers => true
 pod 'RecaptchaInterop', :modular_headers => true
-# @generated end essential-google-signin-modular-headers
+# end managed block
 ```
 
 If you still see the error, run:
